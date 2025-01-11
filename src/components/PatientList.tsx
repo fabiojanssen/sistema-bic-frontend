@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, UserPlus, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const mockPatients = [
   { id: 1, name: "João Silva", age: 12, responsible: "Maria Silva", status: "Em atendimento" },
@@ -8,11 +9,17 @@ const mockPatients = [
 ];
 
 export const PatientList = () => {
+  const navigate = useNavigate();
+
+  const handleNewPatient = () => {
+    navigate('/patient/new');
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-neutral">Pacientes</h1>
-        <Button className="bg-primary hover:bg-primary-dark">
+        <Button className="bg-primary hover:bg-primary-dark" onClick={handleNewPatient}>
           <UserPlus className="mr-2 h-4 w-4" />
           Novo Paciente
         </Button>
@@ -33,7 +40,7 @@ export const PatientList = () => {
             {mockPatients.map((patient) => (
               <TableRow key={patient.id}>
                 <TableCell className="font-medium">{patient.name}</TableCell>
-                <TableCell>{patient.age}</TableCell>
+                <TableCell>{patient.age} anos</TableCell>
                 <TableCell>{patient.responsible}</TableCell>
                 <TableCell>{patient.status}</TableCell>
                 <TableCell className="text-right">
