@@ -118,47 +118,61 @@ const CalendarPage = () => {
     setIsNewEventModalOpen(true);
   };
 
+  const modifiers = {
+    hasEvent: (date: Date) => {
+      return events.some(event => isSameDay(new Date(event.date), date));
+    },
+  };
+
+  const modifiersStyles = {
+    hasEvent: {
+      backgroundColor: "#F2FCE2",
+      color: "#403E43",
+      fontWeight: "bold",
+    },
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
         <Sidebar />
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 lg:p-8">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
-              <div className="flex items-center space-x-2">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
+              <div className="flex flex-col lg:flex-row items-start lg:items-center space-y-2 lg:space-y-0 lg:space-x-2 w-full lg:w-auto mb-4 lg:mb-0">
                 <Button 
                   variant="default" 
-                  className="bg-primary text-white"
+                  className="bg-primary text-white w-full lg:w-auto"
                   onClick={handleNewEventClick}
                 >
                   Novo evento
                 </Button>
-                <div className="flex items-center border rounded-md">
+                <div className="flex items-center border rounded-md w-full lg:w-auto">
                   <Button 
                     variant="ghost" 
-                    className={`rounded-none ${viewMode === 'day' ? 'bg-secondary' : ''}`} 
+                    className={`flex-1 lg:flex-none rounded-none ${viewMode === 'day' ? 'bg-secondary' : ''}`} 
                     onClick={() => setViewMode('day')}
                   >
                     Dia
                   </Button>
                   <Button 
                     variant="ghost" 
-                    className={`rounded-none ${viewMode === 'week' ? 'bg-secondary' : ''}`} 
+                    className={`flex-1 lg:flex-none rounded-none ${viewMode === 'week' ? 'bg-secondary' : ''}`} 
                     onClick={() => setViewMode('week')}
                   >
                     Semana
                   </Button>
                   <Button 
                     variant="ghost" 
-                    className={`rounded-none ${viewMode === 'month' ? 'bg-secondary' : ''}`} 
+                    className={`flex-1 lg:flex-none rounded-none ${viewMode === 'month' ? 'bg-secondary' : ''}`} 
                     onClick={() => setViewMode('month')}
                   >
                     Mês
                   </Button>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 w-full lg:w-auto justify-end">
                 <Button variant="outline" size="icon">
                   <Filter className="h-4 w-4" />
                 </Button>
@@ -171,18 +185,22 @@ const CalendarPage = () => {
               </div>
             </div>
             
-            <div className="flex gap-6">
-              <div className="bg-white rounded-lg shadow p-6 w-[40%]">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  locale={ptBR}
-                  className="rounded-md border w-full scale-130"
-                />
+            <div className="flex flex-col lg:flex-row gap-6">
+              <div className="bg-white rounded-lg shadow p-4 lg:p-6 w-full lg:w-[40%]">
+                <div className="transform scale-110 lg:scale-130">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    locale={ptBR}
+                    className="rounded-md border w-full"
+                    modifiers={modifiers}
+                    modifiersStyles={modifiersStyles}
+                  />
+                </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow p-6 w-[60%]">
+              <div className="bg-white rounded-lg shadow p-4 lg:p-6 w-full lg:w-[60%] overflow-auto">
                 <h2 className="text-xl font-semibold mb-4">
                   Eventos {viewMode === 'day' ? 'do dia' : viewMode === 'week' ? 'da semana' : 'do mês'}
                 </h2>
