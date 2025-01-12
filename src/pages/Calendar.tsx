@@ -6,9 +6,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { ChevronDown, Filter, Printer, Share2 } from "lucide-react";
 
 interface Event {
   id: string;
@@ -16,7 +18,14 @@ interface Event {
   description: string;
   date: Date;
   time: string;
+  patientId?: string;
 }
+
+const mockPatients = [
+  { id: "1", name: "João Silva" },
+  { id: "2", name: "Maria Santos" },
+  { id: "3", name: "Pedro Oliveira" },
+];
 
 const CalendarPage = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -24,6 +33,7 @@ const CalendarPage = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isNewEventModalOpen, setIsNewEventModalOpen] = useState(false);
   const [isViewEventModalOpen, setIsViewEventModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"day" | "week" | "month">("month");
   const { toast } = useToast();
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
@@ -42,6 +52,7 @@ const CalendarPage = () => {
       description: formData.get("description") as string,
       date: date!,
       time: formData.get("time") as string,
+      patientId: formData.get("patient") as string,
     };
 
     setEvents([...events, newEvent]);
@@ -60,6 +71,7 @@ const CalendarPage = () => {
       title: formData.get("title") as string,
       description: formData.get("description") as string,
       time: formData.get("time") as string,
+      patientId: formData.get("patient") as string,
     };
 
     setEvents(events.map((event) => 
@@ -84,8 +96,37 @@ const CalendarPage = () => {
       <div className="flex">
         <Sidebar />
         <main className="flex-1 p-8">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Agenda</h1>
+          <div className="max-w-7xl mx-auto">
+            {/* Toolbar */}
+            <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center space-x-2">
+                <Button variant="default" className="bg-primary text-white">
+                  Novo evento
+                </Button>
+                <div className="flex items-center border rounded-md">
+                  <Button variant="ghost" className={`rounded-none ${viewMode === 'day' ? 'bg-secondary' : ''}`} onClick={() => setViewMode('day')}>
+                    Dia
+                  </Button>
+                  <Button variant="ghost" className={`rounded-none ${viewMode === 'week' ? 'bg-secondary' : ''}`} onClick={() => setViewMode('week')}>
+                    Semana
+                  </Button>
+                  <Button variant="ghost" className={`rounded-none ${viewMode === 'month' ? 'bg-secondary' : ''}`} onClick={() => setViewMode('month')}>
+                    Mês
+                  </Button>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="icon">
+                  <Filter className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon">
+                  <Share2 className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon">
+                  <Printer className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
             
             <div className="bg-white rounded-lg shadow p-6">
               <Calendar
@@ -139,6 +180,20 @@ const CalendarPage = () => {
                       required
                     />
                   </div>
+                  <div>
+                    <Select name="patient" required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o paciente" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {mockPatients.map((patient) => (
+                          <SelectItem key={patient.id} value={patient.id}>
+                            {patient.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <Button type="submit">Criar Evento</Button>
                 </form>
               </DialogContent>
@@ -174,6 +229,20 @@ const CalendarPage = () => {
                       defaultValue={selectedEvent?.time}
                       required
                     />
+                  </div>
+                  <div>
+                    <Select name="patient" defaultValue={selectedEvent?.patientId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o paciente" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {mockPatients.map((patient) => (
+                          <SelectItem key={patient.id} value={patient.id}>
+                            {patient.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <Button type="submit">Atualizar Evento</Button>
                 </form>
