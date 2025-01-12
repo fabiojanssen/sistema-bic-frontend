@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Filter, Printer, Share2 } from "lucide-react";
 
@@ -39,6 +39,7 @@ const CalendarPage = () => {
   const [isNewEventModalOpen, setIsNewEventModalOpen] = useState(false);
   const [isViewEventModalOpen, setIsViewEventModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("month");
+  const [editMode, setEditMode] = useState(false);
   const { toast } = useToast();
 
   const getFilteredEvents = () => {
@@ -47,20 +48,22 @@ const CalendarPage = () => {
     switch (viewMode) {
       case "day":
         return events.filter(event => 
-          format(event.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+          isSameDay(new Date(event.date), date)
         );
       case "week":
         const weekStart = startOfWeek(date);
         const weekEnd = endOfWeek(date);
-        return events.filter(event => 
-          event.date >= weekStart && event.date <= weekEnd
-        );
+        return events.filter(event => {
+          const eventDate = new Date(event.date);
+          return eventDate >= weekStart && eventDate <= weekEnd;
+        });
       case "month":
         const monthStart = startOfMonth(date);
         const monthEnd = endOfMonth(date);
-        return events.filter(event => 
-          event.date >= monthStart && event.date <= monthEnd
-        );
+        return events.filter(event => {
+          const eventDate = new Date(event.date);
+          return eventDate >= monthStart && eventDate <= monthEnd;
+        });
       default:
         return events;
     }
@@ -70,24 +73,49 @@ const CalendarPage = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const newEvent: Event = {
-      id: crypto.randomUUID(),
+      id: selectedEvent?.id || crypto.randomUUID(),
       title: formData.get("title") as string,
       description: formData.get("description") as string,
-      date: date!,
+      date: new Date(formData.get("date") as string),
       time: formData.get("time") as string,
       patientId: formData.get("patient") as string,
     };
 
-    setEvents([...events, newEvent]);
+    if (editMode && selectedEvent) {
+      setEvents(events.map(event => event.id === selectedEvent.id ? newEvent : event));
+      toast({
+        title: "Evento atualizado",
+        description: "O evento foi atualizado com sucesso!",
+      });
+    } else {
+      setEvents([...events, newEvent]);
+      toast({
+        title: "Evento criado",
+        description: "O evento foi criado com sucesso!",
+      });
+    }
+
     setIsNewEventModalOpen(false);
-    toast({
-      title: "Evento criado",
-      description: "O evento foi criado com sucesso!",
-    });
+    setIsViewEventModalOpen(false);
+    setEditMode(false);
+    setSelectedEvent(null);
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setSelectedEvent(event);
+    setEditMode(true);
+    setIsViewEventModalOpen(false);
+    setIsNewEventModalOpen(true);
   };
 
   const getPatientName = (patientId: string) => {
     return mockPatients.find(p => p.id === patientId)?.name || "Paciente não encontrado";
+  };
+
+  const handleNewEventClick = () => {
+    setEditMode(false);
+    setSelectedEvent(null);
+    setIsNewEventModalOpen(true);
   };
 
   return (
@@ -97,13 +125,12 @@ const CalendarPage = () => {
         <Sidebar />
         <main className="flex-1 p-8">
           <div className="max-w-7xl mx-auto">
-            {/* Toolbar */}
             <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
               <div className="flex items-center space-x-2">
                 <Button 
                   variant="default" 
                   className="bg-primary text-white"
-                  onClick={() => setIsNewEventModalOpen(true)}
+                  onClick={handleNewEventClick}
                 >
                   Novo evento
                 </Button>
@@ -145,8 +172,7 @@ const CalendarPage = () => {
             </div>
             
             <div className="flex gap-6">
-              {/* Calendar */}
-              <div className="bg-white rounded-lg shadow p-6 flex-1">
+              <div className="bg-white rounded-lg shadow p-6 w-[40%]">
                 <Calendar
                   mode="single"
                   selected={date}
@@ -156,8 +182,7 @@ const CalendarPage = () => {
                 />
               </div>
 
-              {/* Events List */}
-              <div className="bg-white rounded-lg shadow p-6 w-1/3">
+              <div className="bg-white rounded-lg shadow p-6 w-[60%]">
                 <h2 className="text-xl font-semibold mb-4">
                   Eventos {viewMode === 'day' ? 'do dia' : viewMode === 'week' ? 'da semana' : 'do mês'}
                 </h2>
@@ -182,17 +207,17 @@ const CalendarPage = () => {
               </div>
             </div>
 
-            {/* New Event Modal */}
             <Dialog open={isNewEventModalOpen} onOpenChange={setIsNewEventModalOpen}>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Novo Evento</DialogTitle>
+                  <DialogTitle>{editMode ? "Editar Evento" : "Novo Evento"}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleCreateEvent} className="space-y-4">
                   <div>
                     <Input
                       name="title"
                       placeholder="Título do evento"
+                      defaultValue={selectedEvent?.title}
                       required
                     />
                   </div>
@@ -200,6 +225,15 @@ const CalendarPage = () => {
                     <Textarea
                       name="description"
                       placeholder="Descrição do evento"
+                      defaultValue={selectedEvent?.description}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="date"
+                      name="date"
+                      defaultValue={format(selectedEvent?.date || date || new Date(), 'yyyy-MM-dd')}
                       required
                     />
                   </div>
@@ -207,11 +241,12 @@ const CalendarPage = () => {
                     <Input
                       type="time"
                       name="time"
+                      defaultValue={selectedEvent?.time}
                       required
                     />
                   </div>
                   <div>
-                    <Select name="patient" required>
+                    <Select name="patient" defaultValue={selectedEvent?.patientId} required>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o paciente" />
                       </SelectTrigger>
@@ -224,12 +259,11 @@ const CalendarPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button type="submit">Criar Evento</Button>
+                  <Button type="submit">{editMode ? "Atualizar" : "Criar"} Evento</Button>
                 </form>
               </DialogContent>
             </Dialog>
 
-            {/* View/Edit Event Modal */}
             <Dialog open={isViewEventModalOpen} onOpenChange={setIsViewEventModalOpen}>
               <DialogContent>
                 <DialogHeader>
@@ -252,6 +286,14 @@ const CalendarPage = () => {
                   </div>
                   <div>
                     <Input
+                      type="date"
+                      value={selectedEvent?.date ? format(new Date(selectedEvent.date), 'yyyy-MM-dd') : ''}
+                      readOnly
+                      className="bg-secondary"
+                    />
+                  </div>
+                  <div>
+                    <Input
                       type="time"
                       value={selectedEvent?.time}
                       readOnly
@@ -265,6 +307,7 @@ const CalendarPage = () => {
                       className="bg-secondary"
                     />
                   </div>
+                  <Button onClick={() => handleEditEvent(selectedEvent!)}>Editar Evento</Button>
                 </div>
               </DialogContent>
             </Dialog>
