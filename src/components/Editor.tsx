@@ -15,53 +15,11 @@ export function Editor({ onChange, className }: EditorProps) {
     if (content !== "") {
       timeout = setTimeout(() => {
         onChange(content);
-      }, 500); // Delay de 500ms entre salvamentos
+      }, 500);
     }
     
     return () => clearTimeout(timeout);
   }, [content, onChange]);
-
-  const execCommand = (command: string, value: string | undefined = undefined) => {
-    document.execCommand(command, false, value);
-  };
-
-  const handleFormat = (format: string, value?: string) => {
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
-
-    switch (format) {
-      case 'bold':
-        execCommand('bold');
-        break;
-      case 'italic':
-        execCommand('italic');
-        break;
-      case 'underline':
-        execCommand('underline');
-        break;
-      case 'strikethrough':
-        execCommand('strikethrough');
-        break;
-      case 'unorderedList':
-        execCommand('insertUnorderedList');
-        break;
-      case 'orderedList':
-        execCommand('insertOrderedList');
-        break;
-      case 'highlight':
-        execCommand('backColor', 'yellow');
-        break;
-      case 'color':
-        execCommand('foreColor', value);
-        break;
-      case 'heading':
-        execCommand('formatBlock', '<h2>');
-        break;
-      case 'clearFormat':
-        execCommand('removeFormat');
-        break;
-    }
-  };
 
   return (
     <div
@@ -71,7 +29,7 @@ export function Editor({ onChange, className }: EditorProps) {
       )}
     >
       <div
-        className="min-h-[500px] w-full resize-none"
+        className="min-h-[500px] w-full resize-none p-4"
         contentEditable
         onInput={(e) => setContent(e.currentTarget.innerHTML)}
         role="textbox"
