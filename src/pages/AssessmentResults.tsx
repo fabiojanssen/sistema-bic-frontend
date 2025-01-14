@@ -38,7 +38,7 @@ const AssessmentResults = () => {
   };
 
   const handleFormat = (format: string, value?: string) => {
-    const editorElement = document.querySelector('[role="textbox"]');
+    const editorElement = document.querySelector('[role="textbox"]') as HTMLElement | null;
     if (!editorElement) return;
 
     const selection = window.getSelection();
