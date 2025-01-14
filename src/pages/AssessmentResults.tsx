@@ -37,38 +37,79 @@ const AssessmentResults = () => {
     }
   };
 
+  const handleFormat = (format: string, value?: string) => {
+    const editorElement = document.querySelector('[role="textbox"]');
+    if (!editorElement) return;
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    document.execCommand(format, false, value);
+    editorElement.focus();
+  };
+
   const EditorToolbar = () => (
     <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-t-lg border-b">
-      <Toggle aria-label="Toggle bold">
+      <Toggle 
+        aria-label="Toggle bold" 
+        onPressedChange={() => handleFormat('bold')}
+      >
         <Bold className="h-4 w-4" />
       </Toggle>
-      <Toggle aria-label="Toggle italic">
+      <Toggle 
+        aria-label="Toggle italic"
+        onPressedChange={() => handleFormat('italic')}
+      >
         <Italic className="h-4 w-4" />
       </Toggle>
-      <Toggle aria-label="Toggle underline">
+      <Toggle 
+        aria-label="Toggle underline"
+        onPressedChange={() => handleFormat('underline')}
+      >
         <Underline className="h-4 w-4" />
       </Toggle>
       <Separator orientation="vertical" className="mx-1 h-6" />
-      <Toggle aria-label="Toggle bullet list">
+      <Toggle 
+        aria-label="Toggle bullet list"
+        onPressedChange={() => handleFormat('insertUnorderedList')}
+      >
         <List className="h-4 w-4" />
       </Toggle>
-      <Toggle aria-label="Toggle numbered list">
+      <Toggle 
+        aria-label="Toggle numbered list"
+        onPressedChange={() => handleFormat('insertOrderedList')}
+      >
         <ListOrdered className="h-4 w-4" />
       </Toggle>
       <Separator orientation="vertical" className="mx-1 h-6" />
-      <Toggle aria-label="Toggle highlight">
+      <Toggle 
+        aria-label="Toggle highlight"
+        onPressedChange={() => handleFormat('backColor', 'yellow')}
+      >
         <Highlighter className="h-4 w-4" />
       </Toggle>
-      <Toggle aria-label="Toggle text color">
+      <Toggle 
+        aria-label="Toggle text color"
+        onPressedChange={() => handleFormat('foreColor', '#ff0000')}
+      >
         <Palette className="h-4 w-4" />
       </Toggle>
-      <Toggle aria-label="Toggle strikethrough">
+      <Toggle 
+        aria-label="Toggle strikethrough"
+        onPressedChange={() => handleFormat('strikethrough')}
+      >
         <Strikethrough className="h-4 w-4" />
       </Toggle>
-      <Toggle aria-label="Toggle heading">
+      <Toggle 
+        aria-label="Toggle heading"
+        onPressedChange={() => handleFormat('formatBlock', '<h2>')}
+      >
         <Heading className="h-4 w-4" />
       </Toggle>
-      <Toggle aria-label="Clear formatting">
+      <Toggle 
+        aria-label="Clear formatting"
+        onPressedChange={() => handleFormat('removeFormat')}
+      >
         <X className="h-4 w-4" />
       </Toggle>
     </div>
