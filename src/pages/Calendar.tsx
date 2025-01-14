@@ -138,198 +138,201 @@ const CalendarPage = () => {
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <main className="flex-1 p-4 lg:p-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center space-y-2 lg:space-y-0 lg:space-x-2 w-full lg:w-auto mb-4 lg:mb-0">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center space-y-2 lg:space-y-0 lg:space-x-2 w-full lg:w-auto mb-4 lg:mb-0">
+              <Button 
+                variant="default" 
+                className="bg-primary text-white w-full lg:w-auto"
+                onClick={handleNewEventClick}
+              >
+                Novo evento
+              </Button>
+              <div className="flex items-center border rounded-md w-full lg:w-auto">
                 <Button 
-                  variant="default" 
-                  className="bg-primary text-white w-full lg:w-auto"
-                  onClick={handleNewEventClick}
+                  variant="ghost" 
+                  className={`flex-1 lg:flex-none rounded-none ${viewMode === 'day' ? 'bg-secondary' : ''}`} 
+                  onClick={() => setViewMode('day')}
                 >
-                  Novo evento
+                  Dia
                 </Button>
-                <div className="flex items-center border rounded-md w-full lg:w-auto">
-                  <Button 
-                    variant="ghost" 
-                    className={`flex-1 lg:flex-none rounded-none ${viewMode === 'day' ? 'bg-secondary' : ''}`} 
-                    onClick={() => setViewMode('day')}
-                  >
-                    Dia
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    className={`flex-1 lg:flex-none rounded-none ${viewMode === 'week' ? 'bg-secondary' : ''}`} 
-                    onClick={() => setViewMode('week')}
-                  >
-                    Semana
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    className={`flex-1 lg:flex-none rounded-none ${viewMode === 'month' ? 'bg-secondary' : ''}`} 
-                    onClick={() => setViewMode('month')}
-                  >
-                    Mês
-                  </Button>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2 w-full lg:w-auto justify-end">
-                <Button variant="outline" size="icon">
-                  <Filter className="h-4 w-4" />
+                <Button 
+                  variant="ghost" 
+                  className={`flex-1 lg:flex-none rounded-none ${viewMode === 'week' ? 'bg-secondary' : ''}`} 
+                  onClick={() => setViewMode('week')}
+                >
+                  Semana
                 </Button>
-                <Button variant="outline" size="icon">
-                  <Share2 className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon">
-                  <Printer className="h-4 w-4" />
+                <Button 
+                  variant="ghost" 
+                  className={`flex-1 lg:flex-none rounded-none ${viewMode === 'month' ? 'bg-secondary' : ''}`} 
+                  onClick={() => setViewMode('month')}
+                >
+                  Mês
                 </Button>
               </div>
             </div>
-            
-            <div className="flex flex-col lg:flex-row gap-6">
-              <div className="bg-white rounded-lg shadow p-4 lg:p-6 w-full lg:w-[40%]">
-                <div className="transform scale-110 lg:scale-130">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    locale={ptBR}
-                    className="rounded-md border w-full"
-                    modifiers={modifiers}
-                    modifiersStyles={modifiersStyles}
+            <div className="flex items-center space-x-2 w-full lg:w-auto justify-end">
+              <Button variant="outline" size="icon">
+                <Filter className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon">
+                <Share2 className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon">
+                <Printer className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="bg-white rounded-lg shadow p-4 lg:p-6 w-full lg:w-[40%]">
+              <div className="transform scale-110 lg:scale-130">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  locale={ptBR}
+                  className="rounded-md border w-full"
+                  modifiers={modifiers}
+                  modifiersStyles={modifiersStyles}
+                />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-4 lg:p-6 w-full lg:w-[60%] overflow-auto">
+              <h2 className="text-xl font-semibold mb-4">
+                Eventos {viewMode === 'day' ? 'do dia' : viewMode === 'week' ? 'da semana' : 'do mês'}
+              </h2>
+              <div className="space-y-4">
+                {getFilteredEvents().map(event => (
+                  <div
+                    key={event.id}
+                    onClick={() => {
+                      setSelectedEvent(event);
+                      setIsViewEventModalOpen(true);
+                    }}
+                    className="p-4 bg-secondary rounded-lg cursor-pointer hover:bg-secondary/80"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="text-sm text-primary font-medium">
+                        {format(new Date(event.date), 'dd/MM/yyyy')} - {event.time}
+                      </div>
+                    </div>
+                    <h3 className="font-medium mb-1">{event.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">{event.description}</p>
+                    <p className="text-sm text-primary">
+                      Paciente: {getPatientName(event.patientId)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <Dialog open={isNewEventModalOpen} onOpenChange={setIsNewEventModalOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editMode ? "Editar Evento" : "Novo Evento"}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreateEvent} className="space-y-4">
+                <div>
+                  <Input
+                    name="title"
+                    placeholder="Título do evento"
+                    defaultValue={selectedEvent?.title}
+                    required
                   />
                 </div>
-              </div>
-
-              <div className="bg-white rounded-lg shadow p-4 lg:p-6 w-full lg:w-[60%] overflow-auto">
-                <h2 className="text-xl font-semibold mb-4">
-                  Eventos {viewMode === 'day' ? 'do dia' : viewMode === 'week' ? 'da semana' : 'do mês'}
-                </h2>
-                <div className="space-y-4">
-                  {getFilteredEvents().map(event => (
-                    <div
-                      key={event.id}
-                      onClick={() => {
-                        setSelectedEvent(event);
-                        setIsViewEventModalOpen(true);
-                      }}
-                      className="p-4 bg-secondary rounded-lg cursor-pointer hover:bg-secondary/80"
-                    >
-                      <p className="font-medium">{event.time} - {event.title}</p>
-                      <p className="text-sm text-muted-foreground">{event.description}</p>
-                      <p className="text-sm text-primary mt-1">
-                        Paciente: {getPatientName(event.patientId)}
-                      </p>
-                    </div>
-                  ))}
+                <div>
+                  <Textarea
+                    name="description"
+                    placeholder="Descrição do evento"
+                    defaultValue={selectedEvent?.description}
+                    required
+                  />
                 </div>
-              </div>
-            </div>
-
-            <Dialog open={isNewEventModalOpen} onOpenChange={setIsNewEventModalOpen}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>{editMode ? "Editar Evento" : "Novo Evento"}</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleCreateEvent} className="space-y-4">
-                  <div>
-                    <Input
-                      name="title"
-                      placeholder="Título do evento"
-                      defaultValue={selectedEvent?.title}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Textarea
-                      name="description"
-                      placeholder="Descrição do evento"
-                      defaultValue={selectedEvent?.description}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="date"
-                      name="date"
-                      defaultValue={format(selectedEvent?.date || date || new Date(), 'yyyy-MM-dd')}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="time"
-                      name="time"
-                      defaultValue={selectedEvent?.time}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Select name="patient" defaultValue={selectedEvent?.patientId} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o paciente" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockPatients.map((patient) => (
-                          <SelectItem key={patient.id} value={patient.id}>
-                            {patient.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button type="submit">{editMode ? "Atualizar" : "Criar"} Evento</Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={isViewEventModalOpen} onOpenChange={setIsViewEventModalOpen}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Detalhes do Evento</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Input
-                      value={selectedEvent?.title}
-                      readOnly
-                      className="bg-secondary"
-                    />
-                  </div>
-                  <div>
-                    <Textarea
-                      value={selectedEvent?.description}
-                      readOnly
-                      className="bg-secondary"
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="date"
-                      value={selectedEvent?.date ? format(new Date(selectedEvent.date), 'yyyy-MM-dd') : ''}
-                      readOnly
-                      className="bg-secondary"
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="time"
-                      value={selectedEvent?.time}
-                      readOnly
-                      className="bg-secondary"
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      value={getPatientName(selectedEvent?.patientId || '')}
-                      readOnly
-                      className="bg-secondary"
-                    />
-                  </div>
-                  <Button onClick={() => handleEditEvent(selectedEvent!)}>Editar Evento</Button>
+                <div>
+                  <Input
+                    type="date"
+                    name="date"
+                    defaultValue={format(selectedEvent?.date || date || new Date(), 'yyyy-MM-dd')}
+                    required
+                  />
                 </div>
-              </DialogContent>
-            </Dialog>
-          </div>
+                <div>
+                  <Input
+                    type="time"
+                    name="time"
+                    defaultValue={selectedEvent?.time}
+                    required
+                  />
+                </div>
+                <div>
+                  <Select name="patient" defaultValue={selectedEvent?.patientId} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o paciente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockPatients.map((patient) => (
+                        <SelectItem key={patient.id} value={patient.id}>
+                          {patient.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="submit">{editMode ? "Atualizar" : "Criar"} Evento</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isViewEventModalOpen} onOpenChange={setIsViewEventModalOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Detalhes do Evento</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Input
+                    value={selectedEvent?.title}
+                    readOnly
+                    className="bg-secondary"
+                  />
+                </div>
+                <div>
+                  <Textarea
+                    value={selectedEvent?.description}
+                    readOnly
+                    className="bg-secondary"
+                  />
+                </div>
+                <div>
+                  <Input
+                    type="date"
+                    value={selectedEvent?.date ? format(new Date(selectedEvent.date), 'yyyy-MM-dd') : ''}
+                    readOnly
+                    className="bg-secondary"
+                  />
+                </div>
+                <div>
+                  <Input
+                    type="time"
+                    value={selectedEvent?.time}
+                    readOnly
+                    className="bg-secondary"
+                  />
+                </div>
+                <div>
+                  <Input
+                    value={getPatientName(selectedEvent?.patientId || '')}
+                    readOnly
+                    className="bg-secondary"
+                  />
+                </div>
+                <Button onClick={() => handleEditEvent(selectedEvent!)}>Editar Evento</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
     </div>

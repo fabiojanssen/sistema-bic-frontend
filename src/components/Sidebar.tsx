@@ -1,10 +1,11 @@
-import { Home, Users, Calendar, FileText, Settings } from 'lucide-react';
+import { Home, Users, Calendar, FileText, Settings, ClipboardCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const menuItems = [
   { icon: Home, label: 'Dashboard', href: '/' },
   { icon: Users, label: 'Pacientes', href: '/patients' },
   { icon: Calendar, label: 'Agenda', href: '/calendar' },
+  { icon: ClipboardCheck, label: 'Resultados de Avaliação', href: '/assessment-results' },
   { icon: FileText, label: 'Relatórios', href: '/reports' },
   { icon: Settings, label: 'Configurações', href: '/settings' },
 ];
