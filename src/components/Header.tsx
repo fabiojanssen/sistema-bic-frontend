@@ -1,5 +1,6 @@
 import { Logo } from './Logo';
 import { Bell } from 'lucide-react';
+import { UserAvatar } from './UserAvatar';
 
 export const Header = () => {
   return (
@@ -12,6 +13,7 @@ export const Header = () => {
           <button className="p-2 hover:bg-gray-100 rounded-full">
             <Bell className="w-5 h-5 text-neutral" />
           </button>
+          <UserAvatar />
         </div>
       </div>
     </header>
