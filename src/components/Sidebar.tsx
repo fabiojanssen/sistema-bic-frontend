@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Users, Calendar, FileText, Settings, ClipboardCheck, Menu, X } from 'lucide-react';
+import { Home, Users, Calendar, FileText, Settings, ClipboardCheck, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
