@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Editor } from "@/components/Editor";
 import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const sections = [
   {
