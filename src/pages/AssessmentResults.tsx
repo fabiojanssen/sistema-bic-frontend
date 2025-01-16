@@ -99,7 +99,9 @@ const AssessmentResults = () => {
           className={cn(
             "shadow-sm", 
             section.color,
-            section.span === 3 ? "col-span-3" : "col-span-1"
+            section.span === 3 
+              ? "col-span-full" 
+              : "col-span-full md:col-span-1"
           )}
         >
           <CardHeader className="pb-2">
@@ -133,7 +135,7 @@ const AssessmentResults = () => {
         <main className="flex-1 p-4 md:p-8">
           <div className="max-w-7xl mx-auto">
             <h1 className="text-2xl font-bold mb-6">Resultados de Avaliação</h1>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {renderSectionsByRow(1)}
               {renderSectionsByRow(2)}
               {renderSectionsByRow(3)}
