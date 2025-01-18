@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Home, Users, Calendar, FileText, Settings, ClipboardCheck, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Link } from 'react-router-dom';
 
 const menuItems = [
   { icon: Home, label: 'Dashboard', href: '/' },
@@ -20,8 +21,8 @@ export const Sidebar = () => {
       <ul className="space-y-2">
         {menuItems.map((item) => (
           <li key={item.label}>
-            <a
-              href={item.href}
+            <Link
+              to={item.href}
               className={cn(
                 "flex items-center gap-3 px-4 py-2 rounded-lg text-neutral-dark",
                 "hover:bg-primary hover:bg-opacity-10 hover:text-primary-dark",
@@ -31,7 +32,7 @@ export const Sidebar = () => {
             >
               <item.icon className="w-5 h-5" />
               <span>{item.label}</span>
-            </a>
+            </Link>
           </li>
         ))}
       </ul>
