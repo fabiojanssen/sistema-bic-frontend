@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Users, Calendar, FileText, Settings, ClipboardCheck, Menu } from 'lucide-react';
+import { Home, Users, Calendar, FileText, Settings, ClipboardCheck, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Link } from 'react-router-dom';
@@ -9,6 +9,7 @@ const menuItems = [
   { icon: Users, label: 'Pacientes', href: '/patients' },
   { icon: Calendar, label: 'Agenda', href: '/calendar' },
   { icon: ClipboardCheck, label: 'Resultados de Avaliação', href: '/assessment-results' },
+  { icon: DollarSign, label: 'Financeiro', href: '/financial' },
   { icon: FileText, label: 'Relatórios', href: '/reports' },
   { icon: Settings, label: 'Configurações', href: '/settings' },
 ];

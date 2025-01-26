@@ -11,6 +11,7 @@ import ViewPatient from "./pages/ViewPatient";
 import CalendarPage from "./pages/Calendar";
 import AssessmentResults from "./pages/AssessmentResults";
 import EditProfile from "./pages/EditProfile";
+import Financial from "./pages/Financial";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/assessment-results" element={<AssessmentResults />} />
           <Route path="/profile/edit" element={<EditProfile />} />
+          <Route path="/financial" element={<Financial />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
