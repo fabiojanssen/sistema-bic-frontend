@@ -32,8 +32,10 @@ interface Transaction {
   dueDate: string;
   amount: number;
   status: 'pago' | 'pendente';
-  type?: 'entrada' | 'saida';
+  type: 'entrada' | 'saida';
 }
+
+const COLORS = ['#9b87f5', '#F2FCE2', '#FEC6A1', '#7E69AB'];
 
 const mockTransactions = {
   income: [
@@ -104,14 +106,22 @@ const TransactionTable = ({
 const Financial = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    dateCreated: string;
+    dueDate: string;
+    amount: string;
+    status: 'pago' | 'pendente';
+    type: 'entrada' | 'saida';
+  }>({
     title: '',
     description: '',
     dateCreated: '',
     dueDate: '',
     amount: '',
-    status: 'pendente' as const,
-    type: 'entrada' as const
+    status: 'pendente',
+    type: 'entrada'
   });
 
   const totalIncome = mockIncomeData.reduce((sum, item) => sum + item.value, 0);
@@ -142,14 +152,13 @@ const Financial = () => {
       dueDate: transaction.dueDate,
       amount: transaction.amount.toString(),
       status: transaction.status,
-      type: transaction.type || 'entrada'
+      type: transaction.type
     });
     setIsModalOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically handle the form submission
     setIsModalOpen(false);
   };
 
