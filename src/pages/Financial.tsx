@@ -1,6 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { format } from "date-fns";
 
 const mockIncomeData = [
   { name: 'Atendimentos', value: 5000 },
@@ -16,6 +22,16 @@ const mockExpensesData = [
   { name: 'Funcionários', value: 4000 },
   { name: 'Outros', value: 500 },
 ];
+
+interface Transaction {
+  id: number;
+  title: string;
+  description: string;
+  dateCreated: string;
+  dueDate: string;
+  amount: number;
+  status: 'pago' | 'pendente';
+}
 
 const COLORS = ['#9b87f5', '#F2FCE2', '#FEC6A1', '#7E69AB'];
 
@@ -41,7 +57,15 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
-const TransactionTable = ({ transactions, title }: { transactions: any[], title: string }) => (
+const TransactionTable = ({ 
+  transactions, 
+  title,
+  onRowClick 
+}: { 
+  transactions: Transaction[], 
+  title: string,
+  onRowClick: (transaction: Transaction) => void 
+}) => (
   <Card className="p-4">
     <h3 className="text-lg font-semibold mb-4">{title}</h3>
     <Table>
@@ -57,7 +81,11 @@ const TransactionTable = ({ transactions, title }: { transactions: any[], title:
       </TableHeader>
       <TableBody>
         {transactions.map((transaction) => (
-          <TableRow key={transaction.id}>
+          <TableRow 
+            key={transaction.id}
+            className="cursor-pointer hover:bg-gray-50"
+            onClick={() => onRowClick(transaction)}
+          >
             <TableCell>{transaction.title}</TableCell>
             <TableCell>{transaction.description}</TableCell>
             <TableCell>{new Date(transaction.dateCreated).toLocaleDateString('pt-BR')}</TableCell>
@@ -74,15 +102,61 @@ const TransactionTable = ({ transactions, title }: { transactions: any[], title:
 );
 
 const Financial = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    dateCreated: '',
+    dueDate: '',
+    amount: '',
+    status: 'pendente' as 'pago' | 'pendente'
+  });
+
   const totalIncome = mockIncomeData.reduce((sum, item) => sum + item.value, 0);
   const totalExpenses = mockExpensesData.reduce((sum, item) => sum + item.value, 0);
   const profit = totalIncome - totalExpenses;
-
   const profitData = [{ name: 'Lucro', value: profit }];
+
+  const handleNewTransaction = () => {
+    setSelectedTransaction(null);
+    setFormData({
+      title: '',
+      description: '',
+      dateCreated: format(new Date(), 'yyyy-MM-dd'),
+      dueDate: '',
+      amount: '',
+      status: 'pendente'
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleEditTransaction = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setFormData({
+      title: transaction.title,
+      description: transaction.description,
+      dateCreated: transaction.dateCreated,
+      dueDate: transaction.dueDate,
+      amount: transaction.amount.toString(),
+      status: transaction.status
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Here you would typically handle the form submission
+    // For now, we'll just close the modal
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold mb-6">Financeiro</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Financeiro</h1>
+        <Button onClick={handleNewTransaction}>Novo</Button>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card className="p-4">
@@ -162,9 +236,92 @@ const Financial = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <TransactionTable transactions={mockTransactions.income} title="Entradas" />
-        <TransactionTable transactions={mockTransactions.expenses} title="Saídas" />
+        <TransactionTable 
+          transactions={mockTransactions.income} 
+          title="Entradas" 
+          onRowClick={handleEditTransaction}
+        />
+        <TransactionTable 
+          transactions={mockTransactions.expenses} 
+          title="Saídas" 
+          onRowClick={handleEditTransaction}
+        />
       </div>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedTransaction ? 'Editar Transação' : 'Nova Transação'}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Título</Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Descrição</Label>
+              <Input
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dateCreated">Data de Cadastro</Label>
+              <Input
+                id="dateCreated"
+                type="date"
+                value={formData.dateCreated}
+                onChange={(e) => setFormData({ ...formData, dateCreated: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dueDate">Data de Vencimento</Label>
+              <Input
+                id="dueDate"
+                type="date"
+                value={formData.dueDate}
+                onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="amount">Valor</Label>
+              <Input
+                id="amount"
+                type="number"
+                value={formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <select
+                id="status"
+                className="w-full rounded-md border border-input bg-background px-3 py-2"
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as 'pago' | 'pendente' })}
+              >
+                <option value="pendente">Pendente</option>
+                <option value="pago">Pago</option>
+              </select>
+            </div>
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit">
+                {selectedTransaction ? 'Salvar' : 'Criar'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
