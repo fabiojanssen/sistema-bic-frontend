@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useState } from "react";
 import { format } from "date-fns";
 
@@ -31,20 +32,19 @@ interface Transaction {
   dueDate: string;
   amount: number;
   status: 'pago' | 'pendente';
+  type?: 'entrada' | 'saida';
 }
-
-const COLORS = ['#9b87f5', '#F2FCE2', '#FEC6A1', '#7E69AB'];
 
 const mockTransactions = {
   income: [
-    { id: 1, title: 'Consulta João', description: 'Atendimento psicológico', dateCreated: '2024-03-20', dueDate: '2024-03-25', amount: 150, status: 'pago' },
-    { id: 2, title: 'Palestra Empresa X', description: 'Palestra sobre saúde mental', dateCreated: '2024-03-18', dueDate: '2024-03-30', amount: 2000, status: 'pendente' },
-    { id: 3, title: 'Curso Online', description: 'Curso de desenvolvimento infantil', dateCreated: '2024-03-15', dueDate: '2024-03-28', amount: 500, status: 'pago' },
+    { id: 1, title: 'Consulta João', description: 'Atendimento psicológico', dateCreated: '2024-03-20', dueDate: '2024-03-25', amount: 150, status: 'pago' as const, type: 'entrada' as const },
+    { id: 2, title: 'Palestra Empresa X', description: 'Palestra sobre saúde mental', dateCreated: '2024-03-18', dueDate: '2024-03-30', amount: 2000, status: 'pendente' as const, type: 'entrada' as const },
+    { id: 3, title: 'Curso Online', description: 'Curso de desenvolvimento infantil', dateCreated: '2024-03-15', dueDate: '2024-03-28', amount: 500, status: 'pago' as const, type: 'entrada' as const },
   ],
   expenses: [
-    { id: 1, title: 'Aluguel', description: 'Aluguel do consultório', dateCreated: '2024-03-01', dueDate: '2024-03-10', amount: 2000, status: 'pago' },
-    { id: 2, title: 'Energia', description: 'Conta de energia', dateCreated: '2024-03-05', dueDate: '2024-03-15', amount: 300, status: 'pendente' },
-    { id: 3, title: 'Material', description: 'Material de escritório', dateCreated: '2024-03-08', dueDate: '2024-03-20', amount: 150, status: 'pago' },
+    { id: 1, title: 'Aluguel', description: 'Aluguel do consultório', dateCreated: '2024-03-01', dueDate: '2024-03-10', amount: 2000, status: 'pago' as const, type: 'saida' as const },
+    { id: 2, title: 'Energia', description: 'Conta de energia', dateCreated: '2024-03-05', dueDate: '2024-03-15', amount: 300, status: 'pendente' as const, type: 'saida' as const },
+    { id: 3, title: 'Material', description: 'Material de escritório', dateCreated: '2024-03-08', dueDate: '2024-03-20', amount: 150, status: 'pago' as const, type: 'saida' as const },
   ],
 };
 
@@ -110,7 +110,8 @@ const Financial = () => {
     dateCreated: '',
     dueDate: '',
     amount: '',
-    status: 'pendente' as 'pago' | 'pendente'
+    status: 'pendente' as const,
+    type: 'entrada' as const
   });
 
   const totalIncome = mockIncomeData.reduce((sum, item) => sum + item.value, 0);
@@ -126,7 +127,8 @@ const Financial = () => {
       dateCreated: format(new Date(), 'yyyy-MM-dd'),
       dueDate: '',
       amount: '',
-      status: 'pendente'
+      status: 'pendente',
+      type: 'entrada'
     });
     setIsModalOpen(true);
   };
@@ -139,7 +141,8 @@ const Financial = () => {
       dateCreated: transaction.dateCreated,
       dueDate: transaction.dueDate,
       amount: transaction.amount.toString(),
-      status: transaction.status
+      status: transaction.status,
+      type: transaction.type || 'entrada'
     });
     setIsModalOpen(true);
   };
@@ -147,7 +150,6 @@ const Financial = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Here you would typically handle the form submission
-    // For now, we'll just close the modal
     setIsModalOpen(false);
   };
 
@@ -256,6 +258,24 @@ const Financial = () => {
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Tipo de Transação</Label>
+              <RadioGroup
+                value={formData.type}
+                onValueChange={(value: 'entrada' | 'saida') => 
+                  setFormData({ ...formData, type: value })}
+                className="flex space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="entrada" id="entrada" />
+                  <Label htmlFor="entrada">Entrada</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="saida" id="saida" />
+                  <Label htmlFor="saida">Saída</Label>
+                </div>
+              </RadioGroup>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="title">Título</Label>
               <Input
